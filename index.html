@@ -198,11 +198,28 @@
   footer a:hover { color:var(--accent); }
 
   @media(max-width:640px) {
+    .hero-overlay { padding:0 16px; }
+    .hero-overlay h1 {
+      font-size:clamp(24px, 7vw, 36px);
+      letter-spacing:0.06em;
+      max-width:100%;
+    }
+    .hero-overlay h1 span { letter-spacing:0.06em; }
+    .hero-overlay .sub {
+      font-size:14px;
+      letter-spacing:0.04em;
+      max-width:100%;
+    }
+    .hero-overlay .links { gap:8px; }
+    .hero-overlay .links a { padding:8px 14px; font-size:12px; }
     .about-header { flex-direction:column; align-items:center; text-align:center; gap:20px; }
     .about-photo { width:72px; height:72px; }
+    .about p { font-size:15px; }
+    .journey p { font-size:14px; }
     .exp-item { grid-template-columns:1fr; gap:4px; }
     .proj-card { padding:20px 22px; }
     section { padding:40px 20px; }
+    footer { font-size:11px; padding:32px 20px 48px; }
   }
 </style>
 </head>
