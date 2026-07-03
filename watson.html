@@ -168,7 +168,7 @@
   .hero-visual { position:relative; }
   .tactile-paper {
     background:var(--surface-low); border:1px solid var(--outline-variant);
-    position:relative; border-radius:2px; overflow:hidden;
+    position:relative; z-index:2; border-radius:2px; overflow:hidden;
     box-shadow:0 16px 40px -8px rgba(0,0,0,0.5);
     transform:rotate(2deg);
     background-image:url('https://www.transparenttextures.com/patterns/old-map.png');
@@ -190,6 +190,12 @@
   .hero-visual img {
     width:100%; height:100%; object-fit:cover;
     mix-blend-mode:multiply; opacity:0.85;
+  }
+  .hero-overlay-img {
+    position:absolute; top:-20px; right:-30px;
+    width:140px; height:140px; object-fit:contain;
+    z-index:1; opacity:0.7;
+    filter:drop-shadow(0 8px 24px rgba(0,0,0,0.5));
   }
 
   /* ======== GRAPH CANVAS SECTION ======== */
@@ -426,6 +432,7 @@
   </div>
 
   <div class="hero-visual">
+    <img src="watson-overlay.jpg" alt="" class="hero-overlay-img">
     <div class="tactile-paper" style="aspect-ratio:1;">
       <div class="pin-head"></div>
     </div>
