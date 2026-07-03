@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watson — Autonomous OSINT Investigation Engine</title>
+<meta name="description" content="Watson runs 7-phase OSINT investigations across 16 APIs, cross-references findings, and builds a persistent knowledge graph that grows smarter with every case.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #111118;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.10);
+    --text: #e4e4e9;
+    --text2: #90909a;
+    --text3: #5c5c66;
+    --green: #3dd68c;
+    --amber: #f5a623;
+    --red: #e5484d;
+    --blue: #3399ff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 80px 0; border-bottom: 1px solid var(--border); }
+
+  /* Hero */
+  .hero { padding: 120px 0 80px; text-align: center; border: 0; }
+  .hero img.logo { width: 72px; height: 72px; margin-bottom: 24px; }
+  .hero h1 {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  .hero h1 span { color: var(--green); }
+  .hero .subtitle {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 560px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+  .hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+  .hero .cta a {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .hero .cta .primary { background: var(--green); color: #000; }
+  .hero .cta .primary:hover { background: #2ec47e; text-decoration: none; }
+  .hero .cta .secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .hero .cta .secondary:hover { border-color: var(--border-hover); text-decoration: none; }
+  .hero .meta {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .hero .meta span { margin: 0 10px; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,10,15,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+  }
+  nav .container { display: flex; gap: 24px; align-items: center; }
+  nav a { font-size: 13px; color: var(--text2); font-weight: 500; text-decoration: none; }
+  nav a:hover { color: var(--text); text-decoration: none; }
+
+  /* Section headings */
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 32px;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  /* Description features */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .feature .icon { font-size: 24px; margin-bottom: 12px; }
+  .feature h3 { margin-bottom: 8px; }
+  .feature p { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+  /* Honest grid */
+  .honest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .status-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .status-card .label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .status-card .label.green { color: var(--green); }
+  .status-card .label.amber { color: var(--amber); }
+  .status-card .label.red { color: var(--red); }
+  .status-card .label.blue { color: var(--blue); }
+  .status-card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  /* Release timeline */
+  .release {
+    border-left: 2px solid var(--border);
+    padding-left: 20px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .release::before {
+    content: '';
+    position: absolute; left: -5px; top: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .release .version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .release .date {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+  }
+  .release ul { padding-left: 18px; }
+  .release li {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 4px;
+    line-height: 1.6;
+  }
+
+  /* Community cards */
+  .community-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .community-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .community-card h3 { margin-bottom: 8px; }
+  .community-card p { font-size: 14px; color: var(--text2); margin-bottom: 12px; }
+  .community-card .link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--blue);
+  }
+
+  blockquote {
+    border-left: 2px solid var(--green);
+    padding-left: 16px;
+    color: var(--text2);
+    font-size: 14px;
+    margin: 20px 0;
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .compare-table th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .compare-table td:first-child { color: var(--text); font-weight: 500; }
+  .compare-table .yes { color: var(--green); }
+  .compare-table .no { color: var(--text3); }
+
+  /* Cost grid */
+  .cost-grid {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .cost-grid > div {
+    background: var(--card);
+    padding: 10px 14px;
+  }
+  .cost-grid .header {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+  }
+  .cost-grid .free { color: var(--green); }
+  .cost-grid .paid { color: var(--amber); }
+
+  /* Architecture */
+  .arch {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text2);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .arch .hl { color: var(--green); }
+  .arch .hl2 { color: var(--blue); }
+
+  /* Code */
+  code {
+    background: var(--card);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    border: 1px solid var(--border);
+  }
+  pre {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  ul { padding-left: 20px; }
+  li { margin-bottom: 8px; color: var(--text2); font-size: 14px; }
+  li strong { color: var(--text); }
+
+  .footnote {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .footnote a { color: var(--text2); }
+
+  @media (max-width: 640px) {
+    .feature-grid, .honest-grid, .community-grid { grid-template-columns: 1fr; }
+    .cost-grid { grid-template-columns: 1fr 60px 60px; font-size: 13px; }
+    .compare-table { font-size: 13px; }
+    nav .container { gap: 14px; overflow-x: auto; }
+    .hero { padding: 80px 0 60px; }
+    section { padding: 50px 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#description">About</a>
+    <a href="#releases">Releases</a>
+    <a href="#community">Community</a>
+    <a href="#quickstart">Install</a>
+    <a href="https://github.com/Lorenzobaron99/watson-osint" style="margin-left:auto;">GitHub →</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="container">
+    <img class="logo" src="watson-logo.png" alt="Watson">
+    <h1>Watson <span>investigates</span>.<br>Then remembers.</h1>
+    <p class="subtitle">
+      An autonomous OSINT engine that runs multi-angle parallel investigations across 16 APIs,
+      cross-references findings, and builds a persistent knowledge graph that grows smarter
+      with every case. Investigate like you have an analyst, a librarian, and a detective on call.
+    </p>
+    <div class="cta">
+      <a class="primary" href="https://github.com/Lorenzobaron99/watson-osint">View on GitHub</a>
+      <a class="secondary" href="#quickstart">Quick Start</a>
+    </div>
+    <p class="meta">
+      v1.0.0<span>·</span>Apache 2.0<span>·</span>macOS / Linux
+    </p>
+  </div>
+</section>
+
+<!-- ═══ DESCRIPTION ═══ -->
+<section id="description">
+  <div class="container">
+    <h2>What Watson Does</h2>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="icon">🔍</div>
+        <h3>Autonomous Investigation</h3>
+        <p>
+          Type a target — person, company, domain, wallet, or email.
+          Watson classifies it, plans the investigation, dispatches 4–6 parallel
+          research angles across 16 APIs, and streams findings in real time.
+          No manual query-hopping between tools.
+        </p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🧠</div>
+        <h3>Persistent Memory Graph</h3>
+        <p>
+          Every investigation writes to a knowledge graph. Entity #129 from
+          Case #7 connects to Entity #341 from Case #42. Watson surfaces
+          cross-case connections automatically — no agent does this.
+        </p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🔗</div>
+        <h3>Source-Verified Intelligence</h3>
+        <p>
+          Every finding carries a source URL, confidence tier (CONFIRMED /
+          PROBABLE / POSSIBLE / UNVERIFIABLE), and provenance. When data
+          can't be verified, the report says so explicitly. No hallucinated intelligence.
+        </p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🌐</div>
+        <h3>Community Graph (MCP)</h3>
+        <p>
+          Per-case consent publishing to a shared community knowledge graph.
+          Other Watson instances can query prior intelligence on a target before
+          investigating. Protocol-native MCP server with 5 tools.
+        </p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">⚡</div>
+        <h3>Provider-Agnostic LLM</h3>
+        <p>
+          Works with DeepSeek, OpenAI, Anthropic, Groq, or any OpenAI-compatible
+          endpoint. You own your model choice. No vendor lock-in.
+          ~$1/mo in LLM costs at typical usage.
+        </p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🏠</div>
+        <h3>Runs Locally. Your Data, Your Machine.</h3>
+        <p>
+          Self-hosted. Reports save as markdown on your disk.
+          Entity graph persists in JSONL. No cloud dependency, no telemetry,
+          no external data exfiltration. Air-gapped investigations are possible.
+        </p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:40px; margin-bottom:16px;">Watson vs General Agents</h3>
+    <table class="compare-table">
+      <tr><th></th><th>ChatGPT / Claude</th><th>Watson</th></tr>
+      <tr><td>State</td><td class="no">Stateless</td><td class="yes">Persistent graph</td></tr>
+      <tr><td>Memory across sessions</td><td class="no">None</td><td class="yes">Every case feeds the graph</td></tr>
+      <tr><td>Cross-case intelligence</td><td class="no">Impossible</td><td class="yes">Case #47 ↔ Case #12</td></tr>
+      <tr><td>Community</td><td class="no">N/A</td><td class="yes">MCP server — collective intelligence</td></tr>
+      <tr><td>Source provenance</td><td class="no">Sometimes</td><td class="yes">Every finding has URL + confidence</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ RELEASES ═══ -->
+<section id="releases">
+  <div class="container">
+    <h2>Releases</h2>
+    <p style="color:var(--text2); margin-bottom:32px; font-size:14px;">
+      Watson ships continuously. Here's what's happened since v1.0.
+    </p>
+
+    <div class="release">
+      <div class="version">v1.0.1 — Auto-Save + Hermes MCP</div>
+      <div class="date">June 29, 2026</div>
+      <ul>
+        <li>Auto-save investigations to disk — no more lost reports on server restart</li>
+        <li>Hermes MCP adapter — protocol-native agent backend alongside Direct mode</li>
+        <li>Fix: save endpoint handles date-suffixed filenames</li>
+        <li>Fix: MCP server auth via <code>MCP_API_KEY</code> (401 for unauthenticated writes)</li>
+        <li>Fix: env loading runs before MCP server subprocess spawn</li>
+      </ul>
+    </div>
+
+    <div class="release">
+      <div class="version">v1.0.0 — A Study in Scarlet</div>
+      <div class="date">June 2026</div>
+      <ul>
+        <li>Enterprise-grade cleanup: 117 tests, structured logging, graceful shutdown</li>
+        <li>Onboarding wizard: auto-detect agent adapters, launch browser, smart welcome</li>
+        <li>CLI overhaul: <code>setup</code>, <code>doctor</code>, <code>tools</code>, smarter chat mode</li>
+        <li>Fresh-clone experience: built frontend, fixed PYTHONPATH, macOS compatibility</li>
+        <li>Graph: proper entity typing, cross-finding relations, auto-publish to MCP</li>
+        <li>MCP server: 5 tools, auth middleware, rate limiting, ingest validation</li>
+        <li>Community graph: end-to-end publish with per-case consent UI</li>
+        <li>16 direct API integrations: crt.sh, URLscan, Wayback, OpenSanctions, OpenCorporates, Wikidata, Wikipedia, ICIJ, OCCRP, VirusTotal, BuiltWith, Instant Username, OpenSky, FlightAware, DDG, WhatsApp</li>
+      </ul>
+    </div>
+
+    <div class="release">
+      <div class="version">pre-v1.0 — Foundation</div>
+      <div class="date">Early 2026</div>
+      <ul>
+        <li>7-phase investigation pipeline (classify → dispatch → cross-reference → enrich → verify → synthesize → report)</li>
+        <li>4-layer entity classifier: regex → GLiNER → Wikidata → LLM fallback</li>
+        <li>React web UI with dark mode, SSE streaming, real-time dashboard</li>
+        <li>Browser scraper with CAPTCHA solver, multi-engine search (Google, Yahoo, DDG, Brave, Mojeek)</li>
+        <li>WhatsApp social graph integration, Telegram Gateway bridging</li>
+        <li>Methodology based on Bazzell's identifier-pivoting and source-tiering principles</li>
+      </ul>
+    </div>
+
+    <p style="font-size:13px; color:var(--text3); margin-top:24px;">
+      Full changelog on <a href="https://github.com/Lorenzobaron99/watson-osint/commits/main">GitHub</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ HONEST STATUS ═══ -->
+<section>
+  <div class="container">
+    <h2>What's Real vs Aspirational</h2>
+    <p style="color:var(--text2); margin-bottom:24px; font-size:14px;">
+      No hype. Here's exactly what ships and what's planned.
+    </p>
+
+    <div class="honest-grid">
+      <div class="status-card">
+        <div class="label green">Working</div>
+        <p>
+          16 direct API integrations — crt.sh, URLscan, Wayback CDX,
+          OpenSanctions, OpenCorporates, Wikidata, Wikipedia, ICIJ Offshore
+          Leaks, OCCRP Aleph, VirusTotal, BuiltWith, Instant Username,
+          OpenSky, FlightAware, DDG web search, WhatsApp social graph.
+          Multi-angle parallel dispatch with real-time SSE streaming.
+        </p>
+      </div>
+
+      <div class="status-card">
+        <div class="label green">Working</div>
+        <p>
+          Web UI (React, dark mode), CLI with progress streaming,
+          SSE real-time investigation dashboard, 7-phase pipeline
+          (classify → dispatch → cross-reference → enrich →
+          verify → synthesize → report).
+        </p>
+      </div>
+
+      <div class="status-card">
+        <div class="label green">Working</div>
+        <p>
+          Persistent knowledge graph — entities, edges, case provenance.
+          Every investigation writes to <code>~/.watson/graph/</code>.
+          Cross-case intelligence: Case #47 surfaces connections from Case #12.
+        </p>
+      </div>
+
+      <div class="status-card">
+        <div class="label green">Working</div>
+        <p>
+          MCP server for community graph sharing. Protocol implemented
+          (5 tools, REST API, ingest endpoint). Auth enforced. Local + remote
+          deployment supported. Community instance live.
+        </p>
+      </div>
+
+      <div class="status-card">
+        <div class="label amber">Partial</div>
+        <p>
+          Paid API support: OpenSanctions, VirusTotal, OpenCorporates,
+          HIBP have key slots ready. ~$125/mo all-in if you enable everything.
+          Free tier works without any paid keys (DDG + free APIs still produce
+          real findings).
+        </p>
+      </div>
+
+      <div class="status-card">
+        <div class="label red">Stub</div>
+        <p>
+          PACER, Chainalysis, MarineTraffic — kept as intentional placeholders.
+          No API integration, no HTTP calls. They exist because they <em>should</em>,
+          not because they do. Pull requests welcome.
+        </p>
+      </div>
+    </div>
+
+    <blockquote>
+      Watson won't pretend to call Chainalysis when it can't. Every finding
+      carries a source URL, confidence tier, and provenance. When data is
+      unverifiable, the report says so explicitly.
+    </blockquote>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section>
+  <div class="container">
+    <h2>How It Works</h2>
+
+    <div class="arch">
+<span class="hl2">investigate</span> "shadowy-company.com"
+        │
+        ▼
+┌─────────────────────────────────────────────┐
+│ <span class="hl">Phase 1</span>  Classify &amp; Plan                    │
+│          Target: domain → WHOIS, DNS,        │
+│          Corporate, Historical, Social       │
+│          Checks knowledge graph for          │
+│          connections from past cases         │
+└──────────────────┬──────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────┐
+│ <span class="hl">Phase 2</span>  Parallel Dispatch (4-6 angles)     │
+│          → crt.sh → 14 subdomains            │
+│          → OpenCorporates → LLC owner        │
+│          → Wayback → 2018 snapshot           │
+│          → DDG → 3 news articles             │
+│          → OpenSanctions → sanctions hit?    │
+│          → WhatsApp → social context         │
+└──────────────────┬──────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────┐
+│ <span class="hl">Phase 3</span>  Cross-reference                    │
+│          "John Doe" in 2 sources             │
+│          Sanctions link confirmed            │
+│          Confidence-scored                   │
+│          → Knowledge graph updated           │
+└──────────────────┬──────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────┐
+│ <span class="hl">Output</span>   Structured Briefing              │
+│          CASE-XXXX.md saved                  │
+│          Entities indexed for future         │
+│          cross-case intelligence             │
+│          Source URLs attached to every claim │
+└─────────────────────────────────────────────┘
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COST ═══ -->
+<section>
+  <div class="container">
+    <h2>What It Costs</h2>
+    <p style="color:var(--text2); margin-bottom:20px; font-size:14px;">
+      Zero-cost mode works. Paid APIs are optional and individually configurable.
+    </p>
+
+    <div class="cost-grid">
+      <div class="header">Service</div>
+      <div class="header">Tier</div>
+      <div class="header">Cost/mo</div>
+
+      <div>crt.sh, Wayback, URLscan, Wikidata, Wikipedia, ICIJ, OCCRP, BuiltWith, Instant Username, DDG</div>
+      <div class="free">Free</div>
+      <div class="free">$0</div>
+
+      <div>LLM (DeepSeek V3, ~2k tokens/investigation)</div>
+      <div class="free">Free tier</div>
+      <div class="free">~$1</div>
+
+      <div>OpenSanctions</div>
+      <div class="paid">Paid</div>
+      <div class="paid">$0-50</div>
+
+      <div>VirusTotal</div>
+      <div class="paid">Paid</div>
+      <div class="paid">$0-50</div>
+
+      <div>OpenCorporates</div>
+      <div class="paid">Paid</div>
+      <div class="paid">~$50</div>
+
+      <div>HIBP (Have I Been Pwned)</div>
+      <div class="paid">Paid</div>
+      <div class="paid">$4</div>
+
+      <div style="font-weight:600;">All-in with every paid API</div>
+      <div></div>
+      <div style="color:var(--amber); font-weight:600;">~$155/mo</div>
+    </div>
+
+    <p style="color:var(--text3); font-size:13px; margin-top:12px;">
+      Without any paid API keys, Watson still produces real findings from 10+ free sources.
+      The LLM cost is negligible (~$1/mo at typical usage). You're paying for depth, not baseline functionality.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ COMMUNITY ═══ -->
+<section id="community">
+  <div class="container">
+    <h2>Community</h2>
+
+    <div class="community-grid">
+      <div class="community-card">
+        <h3>Community Knowledge Graph</h3>
+        <p>
+          Watson instances can publish findings to a shared graph via MCP protocol.
+          Query prior intelligence on a target before investigating.
+          Per-case consent — nothing shared without explicit opt-in.
+        </p>
+        <p style="font-size:13px; color:var(--text3);">
+          595+ entities · 19 community cases · growing every investigation
+        </p>
+      </div>
+
+      <div class="community-card">
+        <h3>MCP Server</h3>
+        <p>
+          5 tools: <code>watson_search</code>, <code>watson_traverse</code>,
+          <code>watson_context</code>, <code>watson_case</code>, <code>watson_stats</code>.
+          Any MCP client (Claude Desktop, Hermes, custom) can query the graph.
+        </p>
+        <a class="link" href="https://github.com/Lorenzobaron99/watson-osint/blob/main/SELF_HOSTING.md">Self-hosting docs →</a>
+      </div>
+
+      <div class="community-card">
+        <h3>Contribute</h3>
+        <p>
+          Apache 2.0 licensed. Stubs waiting: PACER, Chainalysis, MarineTraffic.
+          Add a new API integration, improve the classifier, or build a tool.
+        </p>
+        <a class="link" href="https://github.com/Lorenzobaron99/watson-osint">GitHub →</a>
+      </div>
+
+      <div class="community-card">
+        <h3>Built on Hermes</h3>
+        <p>
+          Watson's agent backend runs on <strong>Hermes</strong> — an autonomous AI agent
+          framework. Provider-agnostic LLM orchestration with native MCP support.
+        </p>
+        <a class="link" href="https://hermes-agent.nousresearch.com">Hermes Agent →</a>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px; margin-bottom:16px;">Who This Is For</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <div style="color:var(--text2); font-size:14px; line-height:1.8;">
+        <strong style="color:var(--text);">OSINT practitioners</strong> who run the same
+        searches across 10+ tools manually. Watson parallelizes the boring
+        part and gives you a report with sources you can verify.
+      </div>
+      <div style="color:var(--text2); font-size:14px; line-height:1.8;">
+        <strong style="color:var(--text);">Investigators & analysts</strong> who need cross-case
+        intelligence — you investigated Company A in March, now Company B
+        surfaces the same director. Watson connects the dots.
+      </div>
+      <div style="color:var(--text2); font-size:14px; line-height:1.8;">
+        <strong style="color:var(--text);">Journalists & researchers</strong> doing due diligence,
+        source verification, corporate research. Watson gives you structured
+        briefings with provenance instead of raw search results.
+      </div>
+      <div style="color:var(--text2); font-size:14px; line-height:1.8;">
+        <strong style="color:var(--text);">Security teams</strong> running supply chain risk,
+        executive protection, threat intelligence. Watson's graph builds an
+        institutional memory that doesn't leave with the analyst.
+      </div>
+    </div>
+
+    <p style="color:var(--text3); font-size:13px; margin-top:16px;">
+      <strong style="color:var(--text2);">Not for</strong> people who want a ChatGPT wrapper with
+      investigative cosplay. Watson calls real APIs, not LLM hallucinations
+      dressed as intelligence.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ QUICK START ═══ -->
+<section id="quickstart">
+  <div class="container">
+    <h2>Quick Start</h2>
+    <pre>git clone https://github.com/Lorenzobaron99/watson-osint.git
+cd watson-osint
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# Web UI (recommended)
+PYTHONPATH=.:src uvicorn watson.web.app:app --port 8777
+
+# CLI
+python -m watson.cli</pre>
+
+    <p style="color:var(--text2); font-size:14px; margin-top:16px;">
+      Open <code>http://localhost:8777</code> → type a target → watch the 7-phase pipeline run live.
+      Reports save as <code>CASE-XXXX.md</code> in <code>~/watson-cases/</code>.
+      Entity graph persists in <code>~/.watson/graph/</code>.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<section style="border:0;">
+  <div class="container">
+    <p class="footnote">
+      Watson is Apache 2.0 licensed. Built by
+      <a href="https://github.com/Lorenzobaron99">Lorenzobaron99</a>.
+      Contributions welcome — especially for the PACER/Chainalysis/MarineTraffic stubs.
+      <br><br>
+      <a href="https://github.com/Lorenzobaron99/watson-osint">GitHub</a>
+      <span style="margin:0 12px;color:var(--text3);">·</span>
+      <a href="https://github.com/Lorenzobaron99/watson-osint/blob/main/WATSON_ARCHITECTURE.md">Architecture</a>
+      <span style="margin:0 12px;color:var(--text3);">·</span>
+      <a href="https://github.com/Lorenzobaron99/watson-osint/blob/main/SELF_HOSTING.md">Self-hosting</a>
+      <span style="margin:0 12px;color:var(--text3);">·</span>
+      <a href="https://hermes-agent.nousresearch.com">Hermes Agent</a>
+    </p>
+  </div>
+</section>
+
+</body>
+</html>
