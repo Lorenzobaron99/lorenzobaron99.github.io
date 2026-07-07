@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Watson OSINT — The Agent That Deduces With You</title>
+<title>Watson OSINT — The Open-Source Investigation Engine</title>
 <meta name="description" content="An autonomous OSINT engine that runs multi-angle parallel investigations across 16 APIs, cross-references findings, and builds a persistent knowledge graph.">
-<!-- build: 2026-07-03-1745 -->
+<!-- build: 2026-07-08-impeccable -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -49,29 +49,17 @@
     overflow-x: hidden;
   }
   a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
-  a:hover { color: var(--primary-container); text-decoration: underline; }
+  a:hover { color: var(--primary-container); }
 
-  /* Grain overlay */
-  .grain {
-    position: fixed; top:0; left:0; width:100vw; height:100vh;
-    pointer-events:none; z-index:50; opacity:0.04;
-    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-  }
-  .gold-pattern {
-    position:absolute; inset:0; opacity:0.05; pointer-events:none;
-    background-image: url('https://www.transparenttextures.com/patterns/cream-pixels.png');
-    mix-blend-mode: overlay;
-  }
-
-  /* ======== NAV ======== */
+  /* ======== NAV — solid, no blur ======== */
   nav {
     position:fixed; top:0; left:0; right:0; z-index:40;
-    background: rgba(19,19,19,0.95); backdrop-filter:blur(12px);
+    background: var(--surface);
     border-bottom:1px solid var(--outline-variant);
   }
   nav .inner {
     display:flex; justify-content:space-between; align-items:center;
-    height:80px; padding:0 var(--margin); max-width:var(--max-width); margin:0 auto;
+    height:72px; padding:0 var(--margin); max-width:var(--max-width); margin:0 auto;
   }
   nav .logo {
     font-family: var(--font-serif); font-size:clamp(20px,2.5vw,28px);
@@ -86,16 +74,14 @@
     text-transform:uppercase; color:var(--on-surface-variant);
     letter-spacing:0.04em; position:relative;
   }
-  nav .links a:hover { color:var(--primary); text-decoration:none; }
+  nav .links a:hover { color:var(--primary); }
   nav .cta {
     background:var(--primary-container); color:var(--on-primary-container);
     padding:10px 20px; font-family:var(--font-mono); font-size:11px;
-    font-weight:700; text-transform:uppercase; border-radius:2px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.4); cursor:pointer;
-    transition:all 0.15s; border:none;
+    font-weight:700; text-transform:uppercase; border:none;
+    transition:background 0.15s;
   }
-  nav .cta:hover { background:var(--primary); text-decoration:none; }
-  nav .cta:active { transform:scale(0.95); }
+  nav .cta:hover { background:var(--primary); }
 
   /* ======== SECTIONS ======== */
   section { padding:80px var(--margin); }
@@ -111,7 +97,7 @@
     margin-bottom:24px;
   }
 
-  /* ======== HERO ======== */
+  /* ======== HERO — Holmes image, no heavy shadows ======== */
   .hero {
     padding:140px var(--margin) 100px;
     display:grid; grid-template-columns:1fr 1fr; gap:var(--gutter);
@@ -143,17 +129,15 @@
   .hero-actions .btn-primary {
     background:var(--primary-container); color:var(--on-primary-container);
     padding:14px 28px; font-family:var(--font-mono); font-size:13px;
-    font-weight:700; text-transform:uppercase; border-radius:2px;
-    box-shadow:0 8px 24px rgba(0,0,0,0.5); cursor:pointer;
-    border:none; transition:all 0.15s; display:flex; align-items:center; gap:10px;
+    font-weight:700; text-transform:uppercase;
+    cursor:pointer; border:none; transition:background 0.15s;
+    display:flex; align-items:center; gap:10px;
   }
-  .hero-actions .btn-primary:hover { background:var(--primary); text-decoration:none; }
-  .hero-actions .btn-primary:active { transform:scale(0.95); }
+  .hero-actions .btn-primary:hover { background:var(--primary); }
   .hero-actions .install-box {
     display:flex; align-items:center; gap:12px;
     background:var(--surface-high); border:1px solid var(--outline-variant);
-    border-radius:2px; padding:0 20px;
-    font-family:var(--font-mono); font-size:13px;
+    padding:0 20px; font-family:var(--font-mono); font-size:13px;
   }
   .install-box .dollar { color:var(--primary-container); font-weight:700; }
   .install-box code { color:var(--on-surface); user-select:text; }
@@ -164,45 +148,34 @@
   }
   .install-box .copy-btn:hover { color:var(--primary); }
 
-  /* Hero visual */
-  .hero-visual { position:relative; }
-  .tactile-paper {
-    background:var(--surface-low); border:1px solid var(--outline-variant);
-    position:relative; z-index:2; border-radius:2px; overflow:hidden;
-    box-shadow:0 16px 40px -8px rgba(0,0,0,0.5);
-    transform:rotate(2deg);
-    background-image:url('https://www.transparenttextures.com/patterns/old-map.png');
-  }
-  .pin-head {
-    width:12px; height:12px; border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, var(--pin-red), var(--string-red));
-    position:absolute; top:10px; left:50%; transform:translateX(-50%);
-    box-shadow:0 2px 4px rgba(0,0,0,0.6); z-index:20;
-  }
-  .red-string-line {
-    position:absolute; top:-40px; right:-80px; width:100%; height:100%;
-    pointer-events:none; z-index:10;
-  }
-  .red-string-line path {
-    stroke:var(--string-red); stroke-width:2; fill:none;
-    filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));
+  /* Hero visual — Holmes image */
+  .hero-visual {
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
   }
   .hero-visual img {
-    width:100%; height:100%; object-fit:cover;
-    mix-blend-mode:multiply; opacity:0.85;
+    width:240px; height:auto; object-fit:contain;
+    border:1px solid var(--outline-variant);
   }
-  .hero-overlay-img {
-    position:absolute; top:-20px; right:-30px;
-    width:140px; height:140px; object-fit:contain;
-    z-index:1; opacity:0.7;
-    filter:drop-shadow(0 8px 24px rgba(0,0,0,0.5));
+  .hero-visual .pin-head {
+    width:12px; height:12px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--pin-red), var(--string-red));
+    position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    z-index:20;
+  }
+  .hero-visual .red-string {
+    position:absolute; top:-30px; right:0; width:100%; height:100%;
+    pointer-events:none; z-index:10;
+  }
+  .red-string path {
+    stroke:var(--string-red); stroke-width:2; fill:none;
   }
 
-  /* ======== GRAPH CANVAS SECTION ======== */
+  /* ======== GRAPH SECTION — no blur ======== */
   .graph-section {
     position:relative; overflow:hidden;
-    border-top:1px solid rgba(78,70,58,0.3);
-    border-bottom:1px solid rgba(78,70,58,0.3);
+    border-top:1px solid var(--outline-variant);
+    border-bottom:1px solid var(--outline-variant);
     padding:100px 0; min-height:450px;
     display:flex; align-items:center; justify-content:center;
   }
@@ -212,13 +185,12 @@
   .graph-overlay {
     position:relative; z-index:10; text-align:center;
     max-width:640px; padding:0 var(--margin);
-    background:rgba(19,19,19,0.8); backdrop-filter:blur(2px);
-    padding:48px; border-radius:2px;
+    background:var(--surface-container); padding:48px;
   }
   .graph-stats { display:flex; justify-content:center; gap:32px; margin-top:24px; flex-wrap:wrap; }
   .graph-stat {
-    border:1px solid rgba(230,193,132,0.4);
-    padding:16px 24px; background:rgba(19,19,19,0.85);
+    border:1px solid var(--outline-variant);
+    padding:16px 24px; background:var(--surface);
   }
   .graph-stat .num {
     font-family:var(--font-mono); font-size:24px; font-weight:700;
@@ -226,7 +198,7 @@
   }
   .graph-stat .lbl {
     font-family:var(--font-mono); font-size:9px; text-transform:uppercase;
-    letter-spacing:0.2em; color:rgba(230,193,132,0.6);
+    letter-spacing:0.2em; color:var(--on-surface-variant);
   }
 
   /* ======== FEATURES GRID ======== */
@@ -236,7 +208,7 @@
   }
   .feature-card {
     background:var(--surface-container); border:1px solid var(--outline-variant);
-    padding:28px; border-radius:2px; transition:border-color 0.2s;
+    padding:28px; transition:border-color 0.2s;
   }
   .feature-card:hover { border-color:var(--primary); }
   .feature-card h3 {
@@ -275,7 +247,6 @@
   .release-feature {
     background:var(--surface-container); border:1px solid var(--outline-variant);
     padding:48px; position:relative; overflow:hidden;
-    box-shadow:0 12px 32px rgba(0,0,0,0.4);
   }
   .release-feature .front-page {
     font-family:var(--font-mono); font-size:11px; font-weight:700;
@@ -312,7 +283,7 @@
   }
   .release-side-item .hl { color:var(--primary); }
 
-  /* ======== COST ======== */
+  /* ======== COST TABLE ======== */
   .cost-table {
     width:100%; border-collapse:collapse;
     font-family:var(--font-typewriter); font-size:14px;
@@ -329,19 +300,34 @@
   .cost-table .free { color:var(--primary); font-weight:700; }
   .cost-table .paid { color:var(--primary-container); font-weight:700; }
 
-  /* ======== QUICK START ======== */
+  /* ======== INSTALL ======== */
   pre.install {
     background:var(--surface-lowest); border:1px solid var(--outline-variant);
-    border-radius:2px; padding:28px; overflow-x:auto;
+    padding:28px; overflow-x:auto;
     font-family:var(--font-mono); font-size:13px; line-height:1.8;
     color:var(--on-surface);
   }
 
+  /* ======== WHY BLOCKQUOTE ======== */
+  .why-block {
+    border-left: 3px solid var(--primary);
+    padding: 24px 32px;
+    margin: 48px 0 32px;
+    background: var(--surface-container);
+  }
+  .why-block p {
+    font-family: var(--font-serif); font-size: 18px; font-style: italic;
+    color: var(--on-surface); line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .why-block p:last-child { margin-bottom: 0; }
+  .why-block strong { color: var(--primary); font-style: normal; }
+
   /* ======== FOOTER ======== */
   footer {
-    border-top:1px solid rgba(78,70,58,0.4);
+    border-top:1px solid var(--outline-variant);
     padding:64px var(--margin) 48px;
-    background:rgba(19,19,19,0.9);
+    background:var(--surface);
   }
   footer .w {
     font-family:var(--font-serif); font-size:clamp(32px,5vw,48px);
@@ -366,7 +352,8 @@
   @media (max-width:768px) {
     .hero { grid-template-columns:1fr; padding:120px var(--margin) 60px; min-height:auto; }
     .hero h1 { font-size:clamp(30px,8vw,48px); }
-    .hero-visual { margin-top:40px; max-width:400px; margin-left:auto; margin-right:auto; }
+    .hero-visual { margin-top:40px; max-width:280px; margin-left:auto; margin-right:auto; }
+    .hero-visual img { width:180px; }
     .releases-grid { grid-template-columns:1fr; }
     .release-side { border-left:none; border-top:1px solid var(--outline-variant); padding-left:0; padding-top:32px; grid-column:1; }
     nav .links { display:none; }
@@ -386,9 +373,7 @@
 </head>
 <body>
 
-<div class="grain"></div>
-
-<!-- ═══ NAV ═══ -->
+<!-- ═══ NAV — solid surface, no blur ═══ -->
 <nav>
   <div class="inner">
     <a class="logo" href="#">Watson OSINT</a>
@@ -402,11 +387,11 @@
   </div>
 </nav>
 
-<!-- ═══ HERO ═══ -->
+<!-- ═══ HERO — Holmes image, v1.0.8, pip install ═══ -->
 <section class="hero container" id="hero">
   <div class="hero-text">
     <div class="hero-badge">
-      <span class="dot"></span> Open Source · Apache 2.0 · v1.0.1
+      <span class="dot"></span> Open Source · Apache 2.0 · v1.0.8
     </div>
     <h1>
       The Agent <br>
@@ -414,9 +399,9 @@
     </h1>
     <p class="subtitle">
       An autonomous OSINT engine that runs multi-angle parallel investigations
-      across 16 APIs, cross-references findings, and builds a persistent knowledge
-      graph that grows smarter with every case. Investigate like you have an analyst,
-      a librarian, and a detective on call.
+      across 16+ APIs, cross-references findings, and builds a persistent knowledge
+      graph that grows smarter with every case. No cloud dependency. No vendor lock-in.
+      No one between you and the truth.
     </p>
     <div class="hero-actions">
       <a class="btn-primary" href="https://github.com/Lorenzobaron99/watson-osint">
@@ -425,24 +410,22 @@
       </a>
       <div class="install-box">
         <span class="dollar">$</span>
-        <code>git clone https://github.com/Lorenzobaron99/watson-osint.git</code>
-        <button class="copy-btn" onclick="navigator.clipboard.writeText('git clone https://github.com/Lorenzobaron99/watson-osint.git');this.textContent='✓';setTimeout(()=>this.textContent='📋',2000)" title="Copy">📋</button>
+        <code>uv pip install osintengine</code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('uv pip install osintengine');this.textContent='✓';setTimeout(()=>this.textContent='📋',2000)" title="Copy">📋</button>
       </div>
     </div>
   </div>
 
   <div class="hero-visual">
-    <img src="watson-overlay.jpg" alt="" class="hero-overlay-img">
-    <div class="tactile-paper" style="aspect-ratio:1;">
-      <div class="pin-head"></div>
-    </div>
-    <svg class="red-string-line" viewBox="0 0 100 100" style="top:-40px; right:-60px;">
-      <path d="M10,50 Q40,10 90,40" class="red-string-line"></path>
+    <img src="holmes-watch.jpg" alt="Holmes pulled out his watch — Sidney Paget, 1893" style="width:240px; height:auto;">
+    <div class="pin-head"></div>
+    <svg class="red-string" viewBox="0 0 100 100" style="top:-30px; right:-40px;">
+      <path d="M10,50 Q40,10 90,40"/>
     </svg>
   </div>
 </section>
 
-<!-- ═══ KNOWLEDGE GRAPH ═══ -->
+<!-- ═══ KNOWLEDGE GRAPH — solid overlay, no blur ═══ -->
 <section class="graph-section" id="graph-section">
   <canvas id="graph-canvas"></canvas>
   <div class="graph-overlay">
@@ -466,6 +449,17 @@
         <div class="num">159</div>
         <div class="lbl">Investigations Run</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY BLOCK — bold statement ═══ -->
+<section style="padding:40px var(--margin);">
+  <div class="container">
+    <div class="why-block">
+      <p><strong>Why Watson exists.</strong> AI-generated content now surpasses human output. Search engines return noise dressed as answers. The public is drowning in plausible-sounding falsehoods while truth sits buried under sponsored links and SEO spam.</p>
+      <p>There is no open, production-grade investigation engine. Enterprise platforms exist, but they're locked behind six-figure contracts and sales calls. The rest of the world gets browser bookmarks and Google dorks.</p>
+      <p><strong>Watson is the open-source Palantir for the people.</strong> A 7-phase autonomous pipeline across 16+ data sources. Every finding verified, cross-referenced, and scored. One command. No cloud dependency. No one between you and the truth.</p>
     </div>
   </div>
 </section>
@@ -515,7 +509,7 @@
   </div>
 </section>
 
-<!-- ═══ RELEASES ═══ -->
+<!-- ═══ RELEASES — updated to v1.0.8 ═══ -->
 <section id="releases">
   <div class="container">
     <div class="section-label">A Chronicle of Continuous Evolution</div>
@@ -527,26 +521,25 @@
     <div class="releases-grid">
       <div class="release-main">
         <div class="release-feature">
-          <div class="gold-pattern"></div>
-          <div class="front-page">Front Page · June 2026</div>
-          <h3>Release v1.0.0<br>"A Study in Scarlet"</h3>
-          <p class="lead">The inaugural stable release — the world's first protocol-native agent architecture for autonomous OSINT.</p>
+          <div class="front-page">Latest Release · July 2026</div>
+          <h3>Release v1.0.8<br>"Impeccable Design"</h3>
+          <p class="lead">Production hardening — Impeccable UI design, smart scroll, investigation map, community graph publishing, and agent runtime detection.</p>
           <div class="detail-grid">
             <div>
-              <strong>Graph Architecture</strong>
-              <p>A non-linear knowledge graph mapping entities across disparate data silos with associative memory.</p>
+              <strong>Impeccable Design System</strong>
+              <p>High-contrast surfaces, clean typography hierarchy, no glassmorphism. Smart scroll, pill-shaped mode selector, segmented controls with amber accent.</p>
             </div>
             <div>
-              <strong>16 Direct API Integrations</strong>
-              <p>crt.sh, URLscan, Wayback, OpenSanctions, OpenCorporates, Wikidata, Wikipedia, ICIJ, OCCRP, VirusTotal, BuiltWith, Instant Username, OpenSky, FlightAware, DDG, WhatsApp.</p>
+              <strong>Live Investigation Map</strong>
+              <p>Interactive evidence pin map with downloadable JSON exports. Entity relationship graph with real-time updates during investigations.</p>
             </div>
             <div>
-              <strong>Enterprise-Grade Foundation</strong>
-              <p>117 tests, structured JSON logging, graceful shutdown, onboarding wizard, auto-launch browser.</p>
+              <strong>Agent Auto-Detection</strong>
+              <p>Pluggable agent adapters for Hermes, Direct, and custom runtimes. Auto-detects available agents on startup. Model-agnostic, user-configurable.</p>
             </div>
             <div>
-              <strong>Community MCP Server</strong>
-              <p>5 tools, auth middleware, rate limiting, ingest validation. Per-case consent publishing.</p>
+              <strong>PyPI Distribution</strong>
+              <p>One-command install via <code style="font-family:var(--font-mono); color:var(--primary); font-size:11px;">uv pip install osintengine</code>. Auto-launch browser. Onboarding wizard in 60 seconds.</p>
             </div>
           </div>
         </div>
@@ -554,15 +547,20 @@
 
       <div class="release-side">
         <div class="release-side-item">
-          <div class="ver">v1.0.1: Hermes MCP</div>
-          <div class="date">June 29, 2026</div>
-          <p>Introduction of the <span class="hl">Hermes MCP</span> backend, enabling protocol-native agent communication, auto-save for persistent investigation states, and MCP server auth via <span class="hl">API key</span>.</p>
+          <div class="ver">v1.0.7: Production Hardening</div>
+          <div class="date">July 7, 2026</div>
+          <p>API Vault with LLM key management, <span class="hl">archive export</span> to Markdown, evidence tab redesign, community graph <span class="hl">opt-in publishing</span>, and investigation mode depth presets.</p>
         </div>
         <div style="height:1px; background:var(--outline-variant); margin:24px 0;"></div>
         <div class="release-side-item">
-          <div class="ver">Pre-v1.0: Foundation</div>
+          <div class="ver">v1.0.0 — v1.0.6: Foundation</div>
+          <div class="date">June 2026</div>
+          <p>7-phase pipeline, 16 API integrations, <span class="hl">knowledge graph</span> with cross-case memory, MCP community server, <span class="hl">Hermes MCP</span> backend, and 117 test suite.</p>
+        </div>
+        <div class="release-side-item">
+          <div class="ver">Pre-v1.0: Origins</div>
           <div class="date">Early 2026</div>
-          <p>Development of the <span class="hl">7-Phase Investigation Pipeline</span> (classify → dispatch → cross-reference → enrich → verify → synthesize → report) and the 4-layer <span class="hl">Entity Classifier</span> (regex → GLiNER → Wikidata → LLM).</p>
+          <p>Development of the <span class="hl">7-Phase Investigation Pipeline</span> (classify → surface → pivot → deep → dark → analyze → report) and the 4-layer <span class="hl">Entity Classifier</span> (regex → GLiNER → Wikidata → LLM).</p>
         </div>
         <div style="margin-top:auto; padding-top:32px;">
           <a href="https://github.com/Lorenzobaron99/watson-osint/commits/main" style="display:block; text-align:center; border:1px solid var(--primary); padding:14px; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; color:var(--primary); font-weight:700;">Explore Full Changelog →</a>
@@ -579,31 +577,31 @@
     <div class="section-title">Community</div>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
-      <div style="background:var(--surface-container); border:1px solid var(--outline-variant); padding:28px; border-radius:2px;">
+      <div style="background:var(--surface-container); border:1px solid var(--outline-variant); padding:28px;">
         <div style="font-family:var(--font-mono); font-size:9px; color:var(--primary); text-transform:uppercase; margin-bottom:24px;">ID: 0x8B87</div>
         <h3 style="font-family:var(--font-serif); font-size:18px; text-transform:uppercase; color:var(--on-surface); margin-bottom:8px;">GitHub</h3>
         <p style="font-family:var(--font-typewriter); font-size:13px; color:var(--on-surface-variant); margin-bottom:16px;">Apache 2.0 licensed. Stubs waiting: PACER, Chainalysis, MarineTraffic. Add an API integration, improve the classifier, or build a tool.</p>
         <a href="https://github.com/Lorenzobaron99/watson-osint" style="font-family:var(--font-mono); font-size:10px; text-transform:uppercase; font-weight:700;">View Repository →</a>
       </div>
 
-      <div style="background:var(--surface-container); border:1px solid var(--outline-variant); padding:28px; border-radius:2px;">
+      <div style="background:var(--surface-container); border:1px solid var(--outline-variant); padding:28px;">
         <div style="font-family:var(--font-mono); font-size:9px; color:var(--primary); text-transform:uppercase; margin-bottom:24px;">ENCRYPTED — LOCAL</div>
         <h3 style="font-family:var(--font-serif); font-size:18px; text-transform:uppercase; color:var(--on-surface); margin-bottom:8px;">MCP Server</h3>
         <p style="font-family:var(--font-typewriter); font-size:13px; color:var(--on-surface-variant); margin-bottom:16px;">5 tools: <code style="font-family:var(--font-mono); font-size:11px; color:var(--primary);">watson_search</code>, <code style="font-family:var(--font-mono); font-size:11px; color:var(--primary);">watson_traverse</code>, <code style="font-family:var(--font-mono); font-size:11px; color:var(--primary);">watson_context</code>, <code style="font-family:var(--font-mono); font-size:11px; color:var(--primary);">watson_case</code>, <code style="font-family:var(--font-mono); font-size:11px; color:var(--primary);">watson_stats</code>. Any MCP client can query the graph.</p>
         <a href="https://github.com/Lorenzobaron99/watson-osint/blob/main/SELF_HOSTING.md" style="font-family:var(--font-mono); font-size:10px; text-transform:uppercase; font-weight:700;">Self-Hosting Docs →</a>
       </div>
 
-      <div style="background:var(--surface-container); border:1px solid var(--outline-variant); padding:28px; border-radius:2px;">
+      <div style="background:var(--surface-container); border:1px solid var(--outline-variant); padding:28px;">
         <div style="font-family:var(--font-mono); font-size:9px; color:var(--primary); text-transform:uppercase; margin-bottom:24px;">HQ: HERMES</div>
         <h3 style="font-family:var(--font-serif); font-size:18px; text-transform:uppercase; color:var(--on-surface); margin-bottom:8px;">Built on Hermes</h3>
         <p style="font-family:var(--font-typewriter); font-size:13px; color:var(--on-surface-variant); margin-bottom:16px;">Watson's agent backend runs on Hermes — a provider-agnostic autonomous AI agent framework with native MCP support.</p>
         <a href="https://hermes-agent.nousresearch.com" style="font-family:var(--font-mono); font-size:10px; text-transform:uppercase; font-weight:700;">Hermes Agent →</a>
       </div>
 
-      <div style="background:var(--primary-container); border:1px solid var(--primary); padding:28px; border-radius:2px;">
-        <div style="font-family:var(--font-mono); font-size:9px; color:var(--on-primary-container); text-transform:uppercase; margin-bottom:24px;">v1.0 READY</div>
-        <h3 style="font-family:var(--font-serif); font-size:18px; text-transform:uppercase; color:var(--on-primary-container); margin-bottom:8px;">Docs & Architecture</h3>
-        <p style="font-family:var(--font-typewriter); font-size:13px; color:rgba(83,59,9,0.8); margin-bottom:16px;">7-phase pipeline deep-dive, entity classification methodology, API integration guide, and self-hosting instructions.</p>
+      <div style="background:var(--primary-container); border:1px solid var(--primary); padding:28px;">
+        <div style="font-family:var(--font-mono); font-size:9px; color:var(--on-primary-container); text-transform:uppercase; margin-bottom:24px;">v1.0.8 READY</div>
+        <h3 style="font-family:var(--font-serif); font-size:18px; text-transform:uppercase; color:var(--on-primary-container); margin-bottom:8px;">Docs &amp; Architecture</h3>
+        <p style="font-family:var(--font-typewriter); font-size:13px; color:var(--on-primary-container); margin-bottom:16px; opacity:0.85;">7-phase pipeline deep-dive, entity classification methodology, API integration guide, and self-hosting instructions.</p>
         <a href="https://github.com/Lorenzobaron99/watson-osint/blob/main/WATSON_ARCHITECTURE.md" style="font-family:var(--font-mono); font-size:10px; text-transform:uppercase; font-weight:700; color:var(--on-primary-container);">Read Architecture →</a>
       </div>
     </div>
@@ -611,7 +609,7 @@
 </section>
 
 <!-- ═══ COST ═══ -->
-<section style="border-top:1px solid rgba(78,70,58,0.3);">
+<section style="border-top:1px solid var(--outline-variant);">
   <div class="container">
     <div class="section-label">Transparent Economics</div>
     <div class="section-title">What It Costs</div>
@@ -639,16 +637,17 @@
   <div class="container">
     <div class="section-label">Get Started in 30 Seconds</div>
     <div class="section-title">Quick Start</div>
-    <pre class="install">git clone https://github.com/Lorenzobaron99/watson-osint.git
-cd watson-osint
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+    <pre class="install"># pip
+pip install osintengine
 
-# Web UI (recommended)
-PYTHONPATH=.:src uvicorn watson.web.app:app --port 8777
+# or uv (recommended)
+uv pip install osintengine
 
-# CLI
-python -m watson.cli</pre>
+# First-time setup (60 seconds)
+watson onboard
+
+# Launch the web UI
+watson web</pre>
     <p style="font-family:var(--font-typewriter); font-size:14px; color:var(--on-surface-variant); margin-top:16px;">
       Open <code style="font-family:var(--font-mono); color:var(--primary);">http://localhost:8777</code> → type a target → watch the 7-phase pipeline run live.
       Reports save as <code style="font-family:var(--font-mono); color:var(--primary);">CASE-XXXX.md</code> in <code style="font-family:var(--font-mono); color:var(--primary);">~/watson-cases/</code>.
@@ -692,10 +691,10 @@ python -m watson.cli</pre>
 
   const nodes = Array.from({ length: 28 }, (_, i) => {
     const angle = (i / 28) * Math.PI * 2;
-    const radius = Math.min(600, 400) * 0.3 * (0.6 + Math.random() * 0.4);
+    const radius = 400 * 0.3 * (0.6 + Math.random() * 0.4);
     return {
-      x: (600 / 2) + Math.cos(angle) * radius,
-      y: (400 / 2) + Math.sin(angle) * radius,
+      x: 640 + Math.cos(angle) * radius,
+      y: 381 + Math.sin(angle) * radius,
       vx: (Math.random() - 0.5) * 0.5,
       vy: (Math.random() - 0.5) * 0.5,
       label: labels[i % labels.length] || 'node:' + i,
@@ -705,11 +704,11 @@ python -m watson.cli</pre>
     };
   });
 
-  let mouse = { x: 300, y: 200, active: false };
+  let mouse = { x: 640, y: 381, active: false };
 
   function resize() {
     const parent = canvas.parentElement;
-    width = canvas.width = parent.clientWidth;
+    width = canvas.width = parent.clientWidth || 1280;
     height = canvas.height = parent.clientHeight || 400;
   }
   resize();
@@ -728,7 +727,6 @@ python -m watson.cli</pre>
     ctx.fillStyle = '#131313';
     ctx.fillRect(0, 0, width, height);
 
-    // Connections
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[i].x - nodes[j].x;
@@ -746,7 +744,6 @@ python -m watson.cli</pre>
       }
     }
 
-    // Red string accent
     if (nodes.length > 5) {
       ctx.strokeStyle = '#881e1c';
       ctx.lineWidth = 1.2;
@@ -757,7 +754,6 @@ python -m watson.cli</pre>
       ctx.stroke();
     }
 
-    // Nodes
     nodes.forEach(node => {
       node.x += node.vx;
       node.y += node.vy;
